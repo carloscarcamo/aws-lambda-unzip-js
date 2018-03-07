@@ -5,6 +5,7 @@ let s3 = new AWS.S3({apiVersion: '2006-03-01'});
 let Rx =  require('rx');
 let AdmZip = require('adm-zip');
 let bucket = 'my-bucket';
+let mime = require('mime-types');
 
 exports.handler = (event, context, callback) => {
   let file_key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
@@ -22,9 +23,13 @@ exports.handler = (event, context, callback) => {
       source.subscribe(
         (zipEntry) => {
           let params = {
+            // The Content-type is required if you are publishing a website. 
+            // If not, you may comment the following line in order to keep
+            // the Content-disposition as 'attachment'
+            ContentType : mime.lookup(zipEntry.name),
             Bucket  : bucket,
-            Key     : zipEntry.name,
-            Body    : zipEntry.getCompressedData() // decompressed file as buffer
+            Key     : zipEntry.entryName, // Keeps the full path (folders)
+            Body    : zipEntry.getData() // decompressed file as buffer
           };
           // upload decompressed file
           s3.putObject(params, (err, data) => {

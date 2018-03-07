@@ -20,6 +20,7 @@
   "dependencies": {
     "adm-zip": "^0.4.7",
     "aws-sdk": "^2.6.12",
+    "mime-types": "^2.1.18",
     "rx": "^4.1.0"
   }
 }
